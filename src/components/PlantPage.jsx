@@ -1,14 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import NewPlantForm from "./NewPlantForm";
 import PlantList from "./PlantList";
 import Search from "./Search";
 
 function PlantPage() {
+  const [plants, setPlants] = useState([]);
+  const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:6001/plants")
+      .then((response) => response.json())
+      .then((plantsData) => setPlants(plantsData));
+  }, []);
+
+  function handleAddPlant(newPlant) {
+    // Add the saved plant to the page after the server returns it.
+    setPlants([...plants, newPlant]);
+  }
+
+  function handleToggleStock(id) {
+    // Flip the stock status for only the plant that was clicked.
+    const updatedPlants = plants.map((plant) =>
+      plant.id === id
+        ? { ...plant, inStock: !(plant.inStock ?? true) }
+        : plant
+    );
+
+    setPlants(updatedPlants);
+  }
+
+  const visiblePlants = plants.filter((plant) =>
+    plant.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
     <main>
-      <NewPlantForm />
-      <Search />
-      <PlantList />
+      <NewPlantForm onAddPlant={handleAddPlant} />
+      <Search searchText={searchText} onSearchChange={setSearchText} />
+      <PlantList plants={visiblePlants} onToggleStock={handleToggleStock} />
     </main>
   );
 }
