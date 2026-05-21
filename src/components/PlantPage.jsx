@@ -3,14 +3,22 @@ import NewPlantForm from "./NewPlantForm";
 import PlantList from "./PlantList";
 import Search from "./Search";
 
+const API_URL = "http://localhost:6001/plants";
+
 function PlantPage() {
   const [plants, setPlants] = useState([]);
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:6001/plants")
+    fetch(API_URL)
       .then((response) => response.json())
-      .then((plantsData) => setPlants(plantsData));
+      .then((plantsData) => setPlants(plantsData))
+      .catch(() => {
+        // Use the starter data when the deployed site cannot reach json-server.
+        fetch(`${import.meta.env.BASE_URL}db.json`)
+          .then((response) => response.json())
+          .then((data) => setPlants(data.plants));
+      });
   }, []);
 
   function handleAddPlant(newPlant) {

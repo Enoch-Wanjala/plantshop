@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+const API_URL = "http://localhost:6001/plants";
+
 function NewPlantForm({ onAddPlant }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -17,7 +19,7 @@ function NewPlantForm({ onAddPlant }) {
   function handleSubmit(event) {
     event.preventDefault();
 
-    fetch("http://localhost:6001/plants", {
+    fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -27,6 +29,15 @@ function NewPlantForm({ onAddPlant }) {
       .then((response) => response.json())
       .then((newPlant) => {
         onAddPlant(newPlant);
+        setFormData({
+          name: "",
+          image: "",
+          price: "",
+        });
+      })
+      .catch(() => {
+        // Keep the deployed demo usable even without the local API.
+        onAddPlant({ ...formData, id: Date.now() });
         setFormData({
           name: "",
           image: "",
